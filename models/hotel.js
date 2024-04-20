@@ -31,12 +31,7 @@ const hotelSchema = new mongoose.Schema({
   policies: {
     type: Array,
     required: false,
-    validate: {
-      validator: function (value) {
-        return value && value.length > 0;
-      },
-      message: "Policies must not be empty",
-    },
+
   },
   additionalServices: {
     type: Array,
