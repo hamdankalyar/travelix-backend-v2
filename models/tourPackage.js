@@ -93,9 +93,9 @@ const validateTour = (tour) => {
     place: Joi.string().min(3).max(277).optional(),
     title: Joi.string().min(3).max(255).required(),
     tourOwner: Joi.objectId().required(),
-    description: Joi.string().min(30).max(1000).required(),
+    description: Joi.string(),
     images: Joi.array().items(Joi.string()).min(1).required(), // Updated validation for images
-    duration: Joi.string().min(3).max(255).required(),
+    duration: Joi.string(),
     personsAllowed: Joi.number().min(1).required(),
     amenities: Joi.array().items(Joi.string()).min(1).required(), // Assuming amenities is an array of strings
     availableDates: Joi.array()
