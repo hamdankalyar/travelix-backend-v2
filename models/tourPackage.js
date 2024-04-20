@@ -23,12 +23,7 @@ const tourSchema = new mongoose.Schema({
 
   images: {
     type: Array,
-    validate: {
-      validator: function (value) {
-        return value && value.length > 0;
-      },
-      message: "Please upload atleast one image",
-    },
+ 
   },
   duration: {
     type: String,
@@ -94,7 +89,7 @@ const validateTour = (tour) => {
     title: Joi.string().min(3).max(255).required(),
     tourOwner: Joi.objectId().required(),
     description: Joi.string(),
-    images: Joi.array().items(Joi.string()).min(1).required(), // Updated validation for images
+ 
     duration: Joi.string(),
     personsAllowed: Joi.number().min(1).required(),
     amenities: Joi.array().items(Joi.string()).min(1).required(), // Assuming amenities is an array of strings
