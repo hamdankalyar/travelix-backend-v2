@@ -23,6 +23,37 @@ router.get("/count", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+//Create a new Tour
+router.post("/", async (req, res) => {
+  const { error } = ValidateTour(req.body);
+  if (error) {
+    return res.status(400).send(error.details[0].message);
+  }
+  console.log("No error");
+
+  const tour = new Tour({
+    place: req.body.place,
+    title: req.body.title,
+    tourOwner: req.body.tourOwner,
+    description: req.body.description,
+    images: req.body.images,
+    duration: req.body.duration,
+    personsAllowed: req.body.personsAllowed,
+    amenities: req.body.amenities,
+    availableDates: req.body.availableDates,
+    price: req.body.price,
+    
+  });
+
+  try {
+    console.log(tour);
+    await tour.save();
+    console.log("tour Saved");
+    res.status(200).send(tour);
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
+});
 
 // Get a Tour by a specific ID
 router.get("/:id", async (req, res) => {
@@ -54,38 +85,6 @@ router.get("/:id", async (req, res) => {
 });
 
 //Only Travel club owner can create Travel Package
-//Create a new Tour
-router.post("/", async (req, res) => {
-  const { error } = ValidateTour(req.body);
-  if (error) {
-    return res.status(400).send(error.details[0].message);
-  }
-  console.log("No error");
-
-  const tour = new Tour({
-    place: req.body.place,
-    title: req.body.title,
-    tourOwner: req.body.tourOwner,
-    description: req.body.description,
-    images: req.body.images,
-    duration: req.body.duration,
-    personsAllowed: req.body.personsAllowed,
-    amenities: req.body.amenities,
-    availableDates: req.body.availableDates,
-    price: req.body.price,
-    latitude: req.body.latitude,
-    longitude: req.body.longitude,
-  });
-
-  try {
-    console.log(tour);
-    await tour.save();
-    console.log("tour Saved");
-    res.status(200).send(tour);
-  } catch (error) {
-    res.status(500).send("Internal Server Error");
-  }
-});
 
 //Update the Tour
 router.put("/:id", async (req, res) => {
