@@ -1,0 +1,60 @@
+const bcrypt = require("bcrypt");
+
+const usersData = [
+  {
+    name: "Taimoor Haider",
+    email: "taimoor@gmail.com",
+    phone: "03114193286",
+    password: bcrypt.hashSync("12345678", 10),
+    image: "taimoorHaider.jpeg",
+    role: "superAdmin",
+  },
+  {
+    name: "Hamdan Kalyar",
+    email: "hamdan@gmail.com",
+    phone: "03114193296",
+    password: bcrypt.hashSync("12345678", 10),
+    image: "hamdanKalyar.jpg",
+    role: "carOwner",
+    accountName: "Kiran Shah",
+    idCardImage: "idCar.jpg",
+    address: "Canal Road,Lahore",
+    accountNumber: "123456789010",
+    bankName: "HBL",
+  },
+  {
+    name: "Jahanzaib Iqbal",
+    email: "jahanzaib@gmail.com",
+    phone: "03114193299",
+    password: bcrypt.hashSync("12345678", 10),
+    image: "jahanzaib.jpg",
+    role: "hotelOwner",
+    accountName: "Shaid Jutt",
+    idCardImage: "idCar.jpg",
+    address: "Canal Road,Lahore",
+    accountNumber: "123456789010",
+    bankName: "HBL",
+  },
+  {
+    name: "Zain Amjad",
+    email: "zain@gmail.com",
+    phone: "03114193346",
+    password: bcrypt.hashSync("12345678", 10),
+    image: "zainAmjad.jpg",
+    role: "clubOwner",
+    accountName: "Hamza",
+    idCardImage: "idCar.jpg",
+    address: "Canal Road,Lahore",
+    accountNumber: "123456789010",
+    bankName: "HBL",
+  },
+  {
+    name: "Sanan Ishfaq",
+    email: "sanan@gmail.com",
+    phone: "03114194586",
+    password: bcrypt.hashSync("12345678", 10),
+    image: "sanan.jpg",
+  },
+];
+
+module.exports = usersData;

@@ -1,0 +1,43 @@
+{
+  "name": "travelix",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "server": "nodemon index.js",
+    "client": "npm run dev --prefix frontend",
+    "import:data": "node seed.js",
+    "destroy:data": "node seed.js -d",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "colors": "^1.4.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.4",
+    "express": "^4.18.2",
+    "express-fileupload": "^1.5.0",
+    "fawn": "^2.1.5",
+    "firebase-admin": "^12.1.0",
+    "image-downloader": "^4.3.0",
+    "joi": "^13.1.0",
+    "joi-objectid": "^4.0.2",
+    "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
+    "mongoose": "^8.1.2",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.13",
+    "stripe": "^14.23.0",
+    "swiper": "^11.1.1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "morgan": "^1.10.0",
+    "nodemon": "^3.0.3"
+  }
+}
