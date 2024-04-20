@@ -198,21 +198,22 @@ router.get("/user/:userId", async (req, res) => {
 router.get("/owner/:ownerId", async (req, res) => {
   const { ownerId } = req.params;
   try {
-    // Fetch bookings and populate the necessary fields with only name and email of the tourOwner
-    const bookings = await Booking.find({})
-      .populate({
-        path: "bookedItem.item",
-        populate: {
-          path: "tourOwner",
-          model: "User",
-          select: "name email", // Selecting only name and email fields
-        },
-      })
-      .exec();
+    // Fetch bookings and populate the necessary fields
+    const bookings = await Booking.find({});
+
+    // Populate bookedItem.item with tourOwner information
+    await Booking.populate(bookings, {
+      path: "bookedItem.item",
+      populate: {
+        path: "tourOwner",
+        model: "User",
+        select: "name email", // Selecting only name and email fields
+      },
+    });
 
     // Filter bookings based on ownerId
     const filteredBookings = bookings.filter((booking) => {
-      const owner = booking.bookedItem.item.tourOwner?._id;
+      const owner = booking.bookedItem.item?.tourOwner?._id;
       return owner && owner.toString() === ownerId;
     });
 
