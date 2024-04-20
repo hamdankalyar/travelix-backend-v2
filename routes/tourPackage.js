@@ -25,10 +25,13 @@ router.get("/count", async (req, res) => {
 });
 //Create a new Tour
 router.post("/", async (req, res) => {
+
+   console.log("Received body:", req.body); // Log the entire request body
   const { error } = ValidateTour(req.body);
   if (error) {
     return res.status(400).send(error.details[0].message);
   }
+  
   console.log("No error");
 
   const tour = new Tour({
