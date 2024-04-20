@@ -36,12 +36,7 @@ const hotelSchema = new mongoose.Schema({
   additionalServices: {
     type: Array,
     required: false,
-    validate: {
-      validator: function (value) {
-        return value && value.length > 0;
-      },
-      message: "Services must not be empty",
-    },
+
   },
   feedbacks: {
     type: [mongoose.Schema.Types.ObjectId],
@@ -67,7 +62,7 @@ const validateHotel = (hotel) => {
     longitude: Joi.number().optional(),
     latitude: Joi.number().optional(),
     feedbacks: Joi.array().optional(),
-    policies: Joi.array().items(Joi.string()).min(1).optional(),
+    
     additionalServices: Joi.array().items(Joi.string()).min(1).optional(),
     description: Joi.string().required(), // Added validation for description field
   };
