@@ -206,33 +206,31 @@ const tourSchema = new mongoose.Schema({
 const Tour = mongoose.model("Tour", tourSchema);
 
 const validateTour = (tour) => {
-  const schema = {
+  const schema = Joi.object({
     place: Joi.string().min(3).max(277).optional(),
     title: Joi.string().min(3).max(255).required(),
     tourOwner: Joi.objectId().required(),
-    description: Joi.string().required(),
-    images: Joi.array().items(Joi.string()).min(1).required(), // Updated validation for images
+    description: Joi.string().min(30).max(1000).required(),
+    images: Joi.array().items(Joi.string()).min(1).required(),
     duration: Joi.string().required(),
     personsAllowed: Joi.number().min(1).required(),
-    amenities: Joi.array().items(Joi.string()).min(1).required(), // Assuming amenities is an array of strings
-    availableDates: Joi.array()
-      .items(
-        Joi.object({
-          startDate: Joi.date().required(),
-          finishDate: Joi.date().required(),
-        })
-      )
-      .min(1)
-      .required(), // Updated validation for availableDates
-    feedbacks: Joi.array().optional(),
+    amenities: Joi.array().items(Joi.string()).min(1).required(),
+    availableDates: Joi.array().items(
+      Joi.object({
+        startDate: Joi.date().required(),
+        finishDate: Joi.date().required(),
+      })
+    ).min(1).required(),
     price: Joi.number().min(0).required(),
     rating: Joi.number().min(0).max(5).optional(),
-    longitude: Joi.number().optional(),
+    noOfReviews: Joi.number().optional(), // Make sure to include this
     latitude: Joi.number().optional(),
-  };
+    longitude: Joi.number().optional(),
+  });
 
-  return Joi.validate(tour, schema);
+  return schema.validate(tour);
 };
+
 
 exports.Tour = Tour;
 exports.ValidateTour = validateTour;
