@@ -47,19 +47,69 @@ router.get("/", async (req, res) => {
 // });
 
 //gpt last code 
-router.post("/mobile", async (req, res) => {
-  try {
+// router.post("/mobile", async (req, res) => {
+//   try {
     
     
 
+//     const { bookedItem, paymentMethod } = req.body;
+
+//     // Create a Payment Intent
+//     const paymentIntent = await stripe.paymentIntents.create({
+//       amount: bookedItem.price, // Stripe requires the amount in cents
+//       currency: "usd",
+//       payment_method: paymentMethod.id,
+//       automatic_payment_methods: { enabled: true },
+//     });
+
+//     if (paymentIntent.status === 'succeeded') {
+//       const tour = await Tour.findById(bookedItem.item);
+//       if (!tour) return res.status(404).send('Tour not found');
+//       if (tour.noOfPersonsLeft < bookedItem.noOfPersons) {
+//         return res.status(400).send('Not enough seats available');
+//       }
+
+//       // Subtract the booked persons from the total available persons
+//       tour.noOfPersonsLeft -= bookedItem.noOfPersons;
+//       await tour.save();
+
+//       // Save the booking into the database
+//       const booking = new Booking({
+//         ...req.body,
+//         isStatus: true,
+//       });
+//       await booking.save();
+
+      
+//        res.status(200).send({ clientSecret: paymentIntent.client_secret });
+//       // res.status(200).send({
+//       //   booking: booking,
+//       //   clientSecret: paymentIntent.client_secret,
+//       //   message: "Booking and payment succeeded"
+//       // });
+//     } else {
+//       res.status(400).send("Payment failed");
+//     }
+//   } catch (error) {
+//     console.error("Error while processing payment and booking:", error);
+//     res.status(500).send({ error: error.message });
+//   }
+// });
+
+router.post("/mobile", async (req, res) => {
+  try {
     const { bookedItem, paymentMethod } = req.body;
+
+    // Multiply the price by 100 to convert to cents for Stripe
+    const amountInCents = bookedItem.price * 100;
 
     // Create a Payment Intent
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: bookedItem.price, // Stripe requires the amount in cents
+      amount: amountInCents,
       currency: "usd",
       payment_method: paymentMethod.id,
-      automatic_payment_methods: { enabled: true },
+      confirm: true, // Attempt to confirm the payment immediately
+      error_on_requires_action: true, // Throw error if further action is needed
     });
 
     if (paymentIntent.status === 'succeeded') {
@@ -76,18 +126,18 @@ router.post("/mobile", async (req, res) => {
       // Save the booking into the database
       const booking = new Booking({
         ...req.body,
-        isStatus: true,
+        isStatus: true, // Set booking status to true since payment succeeded
       });
       await booking.save();
 
-      
-       res.status(200).send({ clientSecret: paymentIntent.client_secret });
-      // res.status(200).send({
-      //   booking: booking,
-      //   clientSecret: paymentIntent.client_secret,
-      //   message: "Booking and payment succeeded"
-      // });
+      res.status(200).send({
+        booking: booking,
+        clientSecret: paymentIntent.client_secret,
+        message: "Booking and payment succeeded"
+      });
     } else {
+      // Log detailed error if payment did not succeed
+      console.error("Payment failed with status:", paymentIntent.status);
       res.status(400).send("Payment failed");
     }
   } catch (error) {
