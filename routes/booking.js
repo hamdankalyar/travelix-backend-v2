@@ -162,11 +162,11 @@ const removeBookedSeats = async (id, qty) => {
 
     console.log(
       "Existing number of persons allowed before update:",
-      tour.personsAllowed
+      tour.noOfPersonsLeft;
     );
 
     // Subtract the booked quantity from the total persons allowed
-    tour.personsAllowed -= qty;
+    tour.noOfPersonsLeft -= qty;
 
     // Save the updated tour document
     await tour.save();
@@ -175,7 +175,7 @@ const removeBookedSeats = async (id, qty) => {
       "Successfully removed",
       qty,
       "seats. Updated number of persons allowed:",
-      tour.personsAllowed
+      tour.noOfPersonsLeft;
     );
   } catch (error) {
     console.error("Error removing booked seats:", error.message);
