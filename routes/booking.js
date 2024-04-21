@@ -19,30 +19,178 @@ router.get("/", async (req, res) => {
   res.status(200).send(bookings);
 });
 
+//old code 
+
+// router.post("/mobile", async (req, res) => {
+//   try {
+//     const { paymentMethod } = req.body;
+//     const booking = new Booking(req.body);
+
+//     // Create a Payment Intent
+//     const paymentIntent = await stripe.paymentIntents.create({
+//       amount: booking.bookedItem.price,
+//       currency: "usd",
+//       payment_method: paymentMethod.id,
+//       automatic_payment_methods: { enabled: true },
+//     });
+
+//     // Save the booking into the database
+//     booking.isStatus = true;
+//     await booking.save();
+
+//     // Send the clientSecret back to the client
+//     res.status(200).send({ clientSecret: paymentIntent.client_secret });
+//   } catch (error) {
+//     console.error("Error while creating payment intent:", error);
+//     res.status(500).send({ error: error.message });
+//   }
+// });
+
+//gpt last code 
 router.post("/mobile", async (req, res) => {
   try {
-    const { paymentMethod } = req.body;
-    const booking = new Booking(req.body);
+    const { error } = validateBooking(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
+    const { bookedItem, paymentMethod } = req.body;
 
     // Create a Payment Intent
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: booking.bookedItem.price,
+      amount: bookedItem.price * 100, // Stripe requires the amount in cents
       currency: "usd",
       payment_method: paymentMethod.id,
-      automatic_payment_methods: { enabled: true },
+      confirm: true, // Immediately try to confirm the payment
     });
 
-    // Save the booking into the database
-    booking.isStatus = true;
-    await booking.save();
+    if (paymentIntent.status === 'succeeded') {
+      const tour = await Tour.findById(bookedItem.item);
+      if (!tour) return res.status(404).send('Tour not found');
+      if (tour.noOfPersonsLeft < bookedItem.noOfPersons) {
+        return res.status(400).send('Not enough seats available');
+      }
 
-    // Send the clientSecret back to the client
-    res.status(200).send({ clientSecret: paymentIntent.client_secret });
+      // Subtract the booked persons from the total available persons
+      tour.noOfPersonsLeft -= bookedItem.noOfPersons;
+      await tour.save();
+
+      // Save the booking into the database
+      const booking = new Booking({
+        ...req.body,
+        isStatus: true,
+      });
+      await booking.save();
+
+      res.status(200).send({
+        booking: booking,
+        clientSecret: paymentIntent.client_secret,
+        message: "Booking and payment succeeded"
+      });
+    } else {
+      res.status(400).send("Payment failed");
+    }
   } catch (error) {
-    console.error("Error while creating payment intent:", error);
+    console.error("Error while processing payment and booking:", error);
     res.status(500).send({ error: error.message });
   }
 });
+
+router.post("/", async (req, res) => {
+  try {
+    const { user, bookedItem, bookedUserInfo, travellersInfo, paymentType, paymentMethod } = req.body;
+
+    // Validation logic here (if any, you can use validateBooking if it's defined to validate req.body)
+    const { error } = validateBooking ? validateBooking(req.body) : null;
+    if (error) return res.status(400).send(error.details[0].message);
+
+    // Create booking instance
+    const booking = new Booking({
+      user,
+      bookedItem,
+      bookedUserInfo,
+      travellersInfo,
+      paymentType,
+    });
+
+    // Attempt to create a payment intent with Stripe
+    const paymentIntent = await stripe.paymentIntents.create({
+      payment_method: paymentMethod.id,
+      currency: "USD",
+      amount: booking.bookedItem.price * 100, // ensure amount is in cents
+      confirm: true,
+      description: `${booking.user.name} booked this Tour`,
+      return_url: "http://localhost:5173/", // Replace this with your actual return URL
+    });
+
+    // Check for successful payment intent creation
+    if (paymentIntent.status === 'succeeded') {
+      booking.isStatus = true;
+      booking.bookingAt = new Date();
+
+      // Proceed with seat deduction only if payment is successful
+      const tour = await Tour.findById(bookedItem.item);
+      if (!tour) {
+        return res.status(404).send("Tour not found");
+      }
+
+      if (tour.noOfPersonsLeft < bookedItem.numberOfPersons) {
+        return res.status(400).send("Not enough seats available");
+      }
+
+      // Subtract the booked persons from the total available persons
+      tour.noOfPersonsLeft -= bookedItem.numberOfPersons;
+      await tour.save();
+
+      await booking.save();
+      res.status(200).send(booking);
+    } else {
+      res.status(400).send("Failed to confirm payment intent");
+    }
+  } catch (error) {
+    console.error("Error while processing the booking:", error);
+    res.status(500).send({ error: error.message });
+  }
+});
+
+
+
+//gpt second response 
+// router.post("/mobile", async (req, res) => {
+//   try {
+//     const { error } = validateBooking(req.body);
+//     if (error) return res.status(400).send(error.details[0].message);
+
+//     const { bookedItem, paymentMethod, isStatus } = req.body;
+
+//     if (isStatus) {
+//       const tour = await Tour.findById(bookedItem.item);
+//       if (!tour) return res.status(404).send('Tour not found');
+//       if (tour.noOfPersonsLeft < bookedItem.noOfPersons) {
+//         return res.status(400).send('Not enough seats available');
+//       }
+
+//       tour.noOfPersonsLeft -= bookedItem.noOfPersons;
+//       await tour.save();
+//     }
+
+//     const paymentIntent = await stripe.paymentIntents.create({
+//       amount: booking.bookedItem.price,
+//       currency: "usd",
+//       payment_method: paymentMethod.id,
+//       automatic_payment_methods: { enabled: true },
+//     });
+
+//     const booking = new Booking({
+//       ...req.body,
+//       isStatus: true, // Ensure isStatus is set to true when saving the booking
+//     });
+//     await booking.save();
+
+//     res.status(200).send({ clientSecret: paymentIntent.client_secret });
+//   } catch (error) {
+//     console.error("Error while creating payment intent:", error);
+//     res.status(500).send({ error: error.message });
+//   }
+// });
 
 router.get("/:id", async (req, res) => {
   const id = req.params.id;
@@ -56,46 +204,50 @@ router.get("/:id", async (req, res) => {
   res.status(200).send(booking);
 });
 
+
+///old one 
+
+
 // Path   : /api/bookings/id
 // Method : GET
 // Access : Private
 // Desc   :Get a bookings(For Admin & User)
-router.post("/", async (req, res) => {
-  try {
-    const { user, bookedItem, bookedUserInfo, travellersInfo, paymentType } =
-      req.body;
-    const { paymentMethod } = req.body;
-    //use my key
-    // const stripe = new Stripe(
-    //   "sk_test_51MpYaDSGTswR1vciQcDNb47pImQECcrTwmD7kFGaiGSUV67WNHfz7poKR7OEJCV0XuNCJoCwSDSiuAWGJMoGazeV00yHqaX7VU"
-    // );
-    const booking = new Booking({
-      user,
-      bookedItem,
-      bookedUserInfo,
-      travellersInfo,
-      paymentType,
-    });
-    await stripe.paymentIntents.create({
-      payment_method: paymentMethod.id,
-      currency: "USD",
-      amount: booking.bookedItem.price,
-      confirm: true,
-      description: `${booking.user.name} booked this Tour`,
-      return_url: "http://localhost:5173/", // Replace this with your actual return URL
-    });
-    booking.isStatus = true;
-    booking.bookingAt = new Date();
-    await removeBookedSeats(
-      booking.bookedItem.item,
-      booking.bookedItem.numberOfPersons
-    );
-    await booking.save();
-    res.status(200).send(booking);
-  } catch (error) {
-    res.status(400).send(error.message);
-  }
-});
+// router.post("/", async (req, res) => {
+//   try {
+//     const { user, bookedItem, bookedUserInfo, travellersInfo, paymentType } =
+//       req.body;
+//     const { paymentMethod } = req.body;
+//     //use my key
+//     // const stripe = new Stripe(
+//     //   "sk_test_51MpYaDSGTswR1vciQcDNb47pImQECcrTwmD7kFGaiGSUV67WNHfz7poKR7OEJCV0XuNCJoCwSDSiuAWGJMoGazeV00yHqaX7VU"
+//     // );
+//     const booking = new Booking({
+//       user,
+//       bookedItem,
+//       bookedUserInfo,
+//       travellersInfo,
+//       paymentType,
+//     });
+//     await stripe.paymentIntents.create({
+//       payment_method: paymentMethod.id,
+//       currency: "USD",
+//       amount: booking.bookedItem.price,
+//       confirm: true,
+//       description: `${booking.user.name} booked this Tour`,
+//       return_url: "http://localhost:5173/", // Replace this with your actual return URL
+//     });
+//     booking.isStatus = true;
+//     booking.bookingAt = new Date();
+//     await removeBookedSeats(
+//       booking.bookedItem.item,
+//       booking.bookedItem.numberOfPersons
+//     );
+//     await booking.save();
+//     res.status(200).send(booking);
+//   } catch (error) {
+//     res.status(400).send(error.message);
+//   }
+// });
 
 //Update payment
 
