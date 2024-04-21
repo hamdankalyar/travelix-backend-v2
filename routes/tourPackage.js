@@ -71,6 +71,7 @@ router.post("/", async (req, res) => {
     images: req.body.images,
     duration: req.body.duration,
     personsAllowed: req.body.personsAllowed,
+    noOfPersonsLeft: req.body.personsAllowed, 
     amenities: req.body.amenities,
     availableDates: req.body.availableDates,
     price: req.body.price,
