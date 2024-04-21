@@ -59,7 +59,7 @@ router.post("/mobile", async (req, res) => {
       amount: bookedItem.price * 100, // Stripe requires the amount in cents
       currency: "usd",
       payment_method: paymentMethod.id,
-      confirm: true, // Immediately try to confirm the payment
+      automatic_payment_methods: { enabled: true },
     });
 
     if (paymentIntent.status === 'succeeded') {
