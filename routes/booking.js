@@ -37,11 +37,11 @@ console.log("booooooking",booking);
 
     // Save the booking into the database
     booking.isStatus = true;
-    booking.bookingAt = new Date();
-     await removeBookedSeats(
-      booking.bookedItem.item,
-      booking.bookedItem.numberOfPersons
-    );
+    // booking.bookingAt = new Date();
+    //  await removeBookedSeats(
+    //   booking.bookedItem.item,
+    //   booking.bookedItem.numberOfPersons
+    // );
     await booking.save();
     res.status(200).send(booking);
 
