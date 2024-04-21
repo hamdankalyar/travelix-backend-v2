@@ -21,30 +21,30 @@ router.get("/", async (req, res) => {
 
 //old code 
 
-// router.post("/mobile", async (req, res) => {
-//   try {
-//     const { paymentMethod } = req.body;
-//     const booking = new Booking(req.body);
+router.post("/mobile", async (req, res) => {
+  try {
+    const { paymentMethod } = req.body;
+    const booking = new Booking(req.body);
 
-//     // Create a Payment Intent
-//     const paymentIntent = await stripe.paymentIntents.create({
-//       amount: booking.bookedItem.price,
-//       currency: "usd",
-//       payment_method: paymentMethod.id,
-//       automatic_payment_methods: { enabled: true },
-//     });
+    // Create a Payment Intent
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: booking.bookedItem.price,
+      currency: "usd",
+      payment_method: paymentMethod.id,
+      automatic_payment_methods: { enabled: true },
+    });
 
-//     // Save the booking into the database
-//     booking.isStatus = true;
-//     await booking.save();
+    // Save the booking into the database
+    booking.isStatus = true;
+    await booking.save();
 
-//     // Send the clientSecret back to the client
-//     res.status(200).send({ clientSecret: paymentIntent.client_secret });
-//   } catch (error) {
-//     console.error("Error while creating payment intent:", error);
-//     res.status(500).send({ error: error.message });
-//   }
-// });
+    // Send the clientSecret back to the client
+    res.status(200).send({ clientSecret: paymentIntent.client_secret });
+  } catch (error) {
+    console.error("Error while creating payment intent:", error);
+    res.status(500).send({ error: error.message });
+  }
+});
 
 //gpt last code 
 // router.post("/mobile", async (req, res) => {
@@ -96,58 +96,58 @@ router.get("/", async (req, res) => {
 //   }
 // });
 
-router.post("/mobile", async (req, res) => {
-  try {
+// router.post("/mobile", async (req, res) => {
+//   try {
     
 
-    const { bookedItem, paymentMethod } = req.body;
+//     const { bookedItem, paymentMethod } = req.body;
 
-    // Create a Payment Intent without immediate confirmation
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: bookedItem.price * 100, // Convert price to cents
-      currency: "usd",
-      payment_method: paymentMethod.id,
-      confirmation_method: 'manual', // Set to manual to handle confirmations client-side
-      confirm: false, // Do not confirm immediately
-    });
+//     // Create a Payment Intent without immediate confirmation
+//     const paymentIntent = await stripe.paymentIntents.create({
+//       amount: bookedItem.price * 100, // Convert price to cents
+//       currency: "usd",
+//       payment_method: paymentMethod.id,
+//       confirmation_method: 'manual', // Set to manual to handle confirmations client-side
+//       confirm: false, // Do not confirm immediately
+//     });
 
-    if (paymentIntent.status === 'requires_action' || paymentIntent.status === 'requires_confirmation') {
-      // Payment requires additional actions (like 3D Secure)
-      res.status(200).send({
-        requiresAction: true,
-        clientSecret: paymentIntent.client_secret,
-        message: "Additional authorization required"
-      });
-    } else if (paymentIntent.status === 'succeeded') {
-      const tour = await Tour.findById(bookedItem.item);
-      if (!tour) return res.status(404).send('Tour not found');
-      if (tour.noOfPersonsLeft < bookedItem.noOfPersons) {
-        return res.status(400).send('Not enough seats available');
-      }
+//     if (paymentIntent.status === 'requires_action' || paymentIntent.status === 'requires_confirmation') {
+//       // Payment requires additional actions (like 3D Secure)
+//       res.status(200).send({
+//         requiresAction: true,
+//         clientSecret: paymentIntent.client_secret,
+//         message: "Additional authorization required"
+//       });
+//     } else if (paymentIntent.status === 'succeeded') {
+//       const tour = await Tour.findById(bookedItem.item);
+//       if (!tour) return res.status(404).send('Tour not found');
+//       if (tour.noOfPersonsLeft < bookedItem.noOfPersons) {
+//         return res.status(400).send('Not enough seats available');
+//       }
 
-      tour.noOfPersonsLeft -= bookedItem.noOfPersons;
-      await tour.save();
+//       tour.noOfPersonsLeft -= bookedItem.noOfPersons;
+//       await tour.save();
 
-      const booking = new Booking({
-        ...req.body,
-        isStatus: true,
-      });
-      await booking.save();
+//       const booking = new Booking({
+//         ...req.body,
+//         isStatus: true,
+//       });
+//       await booking.save();
 
-      res.status(200).send({
-        booking: booking,
-        clientSecret: paymentIntent.client_secret,
-        message: "Booking and payment succeeded"
-      });
-    } else {
-      // Handle other statuses if needed
-      res.status(400).send("Payment failed with status: " + paymentIntent.status);
-    }
-  } catch (error) {
-    console.error("Error while processing payment and booking:", error);
-    res.status(500).send({ error: error.message });
-  }
-});
+//       res.status(200).send({
+//         booking: booking,
+//         clientSecret: paymentIntent.client_secret,
+//         message: "Booking and payment succeeded"
+//       });
+//     } else {
+//       // Handle other statuses if needed
+//       res.status(400).send("Payment failed with status: " + paymentIntent.status);
+//     }
+//   } catch (error) {
+//     console.error("Error while processing payment and booking:", error);
+//     res.status(500).send({ error: error.message });
+//   }
+// });
 
 router.post("/", async (req, res) => {
   try {
