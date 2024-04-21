@@ -75,8 +75,7 @@ router.post("/", async (req, res) => {
     amenities: req.body.amenities,
     availableDates: req.body.availableDates,
     price: req.body.price,
-    latitude: req.body.latitude,
-    longitude: req.body.longitude,
+    
   });
 
   try {
