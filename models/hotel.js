@@ -62,7 +62,8 @@ const validateHotel = (hotel) => {
     longitude: Joi.number().optional(),
     latitude: Joi.number().optional(),
     feedbacks: Joi.array().optional(),
-    
+     policies: Joi.array().optional(),
+  
     additionalServices: Joi.array().items(Joi.string()).min(1).optional(),
     description: Joi.string().required(), // Added validation for description field
   };
