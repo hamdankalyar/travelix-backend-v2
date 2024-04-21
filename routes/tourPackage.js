@@ -94,7 +94,20 @@ router.put("/:id", async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).send("Invalid Id!");
   }
-  const tour = await Tour.findByIdAndUpdate(id, req.body, { new: true });
+  const tour = await Tour.findByIdAndUpdate(id, {
+
+      place: req.body.place,
+    title: req.body.title,
+    tourOwner: req.body.tourOwner,
+    description: req.body.description,
+    images: req.body.images,
+    duration: req.body.duration,
+    personsAllowed: req.body.personsAllowed,
+    noOfPersonsLeft: req.body.personsAllowed, 
+    amenities: req.body.amenities,
+    availableDates: req.body.availableDates,
+    price: req.body.price,
+  }, { new: true });
   if (!tour) {
     return res.status(404).send("Tour not found");
   }
