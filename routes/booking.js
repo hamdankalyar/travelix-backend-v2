@@ -98,35 +98,40 @@ router.get("/", async (req, res) => {
 
 router.post("/mobile", async (req, res) => {
   try {
+    const { error } = validateBooking(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
     const { bookedItem, paymentMethod } = req.body;
 
-    // Multiply the price by 100 to convert to cents for Stripe
-    const amountInCents = bookedItem.price * 100;
-
-    // Create a Payment Intent
+    // Create a Payment Intent without immediate confirmation
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amountInCents,
+      amount: bookedItem.price * 100, // Convert price to cents
       currency: "usd",
       payment_method: paymentMethod.id,
-      confirm: true, // Attempt to confirm the payment immediately
-      error_on_requires_action: true, // Throw error if further action is needed
+      confirmation_method: 'manual', // Set to manual to handle confirmations client-side
+      confirm: false, // Do not confirm immediately
     });
 
-    if (paymentIntent.status === 'succeeded') {
+    if (paymentIntent.status === 'requires_action' || paymentIntent.status === 'requires_confirmation') {
+      // Payment requires additional actions (like 3D Secure)
+      res.status(200).send({
+        requiresAction: true,
+        clientSecret: paymentIntent.client_secret,
+        message: "Additional authorization required"
+      });
+    } else if (paymentIntent.status === 'succeeded') {
       const tour = await Tour.findById(bookedItem.item);
       if (!tour) return res.status(404).send('Tour not found');
       if (tour.noOfPersonsLeft < bookedItem.noOfPersons) {
         return res.status(400).send('Not enough seats available');
       }
 
-      // Subtract the booked persons from the total available persons
       tour.noOfPersonsLeft -= bookedItem.noOfPersons;
       await tour.save();
 
-      // Save the booking into the database
       const booking = new Booking({
         ...req.body,
-        isStatus: true, // Set booking status to true since payment succeeded
+        isStatus: true,
       });
       await booking.save();
 
@@ -136,9 +141,8 @@ router.post("/mobile", async (req, res) => {
         message: "Booking and payment succeeded"
       });
     } else {
-      // Log detailed error if payment did not succeed
-      console.error("Payment failed with status:", paymentIntent.status);
-      res.status(400).send("Payment failed");
+      // Handle other statuses if needed
+      res.status(400).send("Payment failed with status: " + paymentIntent.status);
     }
   } catch (error) {
     console.error("Error while processing payment and booking:", error);
