@@ -39,6 +39,10 @@ const tourSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+   noOfPersonsLeft: {
+    type: Number,
+    min: 0, // Optional: You can specify a minimum if it makes sense for your use case
+  },
   amenities: {
     type: Array,
     required: true,
@@ -110,6 +114,7 @@ const validateTour = (tour) => {
     noOfReviews: Joi.number().optional(), // Make sure to include this
     latitude: Joi.number().optional(),
     longitude: Joi.number().optional(),
+    noOfPersonsLeft: Joi.number().min(0).optional(),
   });
 
   return schema.validate(tour);
