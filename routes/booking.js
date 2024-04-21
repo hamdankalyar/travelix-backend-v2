@@ -56,7 +56,7 @@ router.post("/mobile", async (req, res) => {
 
     // Create a Payment Intent
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: bookedItem.price * 100, // Stripe requires the amount in cents
+      amount: bookedItem.price, // Stripe requires the amount in cents
       currency: "usd",
       payment_method: paymentMethod.id,
       automatic_payment_methods: { enabled: true },
@@ -80,11 +80,13 @@ router.post("/mobile", async (req, res) => {
       });
       await booking.save();
 
-      res.status(200).send({
-        booking: booking,
-        clientSecret: paymentIntent.client_secret,
-        message: "Booking and payment succeeded"
-      });
+      
+       res.status(200).send({ clientSecret: paymentIntent.client_secret });
+      // res.status(200).send({
+      //   booking: booking,
+      //   clientSecret: paymentIntent.client_secret,
+      //   message: "Booking and payment succeeded"
+      // });
     } else {
       res.status(400).send("Payment failed");
     }
