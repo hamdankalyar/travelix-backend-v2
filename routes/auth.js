@@ -147,7 +147,7 @@ router.post("/login", async (req, res) => {
 router.post("/resetUserInfo", async (req, res) => {
   const { _id, name, password } = req.body;
   console.log("kkljhjkhkj", req.files);
-  const file = req.files.image;
+  const file = req.files?.image;
 
   try {
     const user = await User.findById(_id);
