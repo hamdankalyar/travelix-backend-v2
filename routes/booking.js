@@ -43,9 +43,7 @@ console.log("booooooking",booking);
     //   booking.bookedItem.numberOfPersons
     // );
     await booking.save();
-    res.status(200).send(booking);
-
-  
+    res.status(200).send({ clientSecret: paymentIntent.client_secret });
   } catch (error) {
     console.error("Error while creating payment intent:", error);
     res.status(500).send({ error: error.message });
