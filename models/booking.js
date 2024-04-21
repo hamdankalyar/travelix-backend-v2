@@ -24,6 +24,7 @@ const bookingSchema = new mongoose.Schema({
         required: true,
       },
     },
+    numberOfPersons:{type:number}
   },
   bookedUserInfo: {
     fullName: String,
