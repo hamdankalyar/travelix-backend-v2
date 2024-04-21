@@ -193,15 +193,17 @@ router.get("/user/:userId", async (req, res) => {
     // Fetch bookings from different collections/documents
     const hotelBookings = await HotelBooking.find({ user: userId })
       .populate("user", "-password")
-      .populate("bookedItem.item"); // Populate the bookedItem.item field
+      .populate({ path: 'bookedItem.item', model: 'Hotel' });
 
     const vehicleBookings = await VehicleBooking.find({ user: userId })
       .populate("user", "-password")
-      .populate("bookedItem.item"); // Populate the bookedItem.item field
+      .populate({ path: 'bookedItem.item', model: 'Vehicle' }); // Assuming 'Vehicle' is the model name for vehicle data
+
+
 
     const tourBookings = await Booking.find({ user: userId })
       .populate("user", "-password")
-      .populate("bookedItem.item"); // Populate the bookedItem.item field
+      .populate({ path: 'bookedItem.item', model: 'Tour' }); // Assuming 'Vehicle' is the model name for vehicle data
 
     // Combine results into a single array
     const allBookings = [...hotelBookings, ...vehicleBookings, ...tourBookings];
