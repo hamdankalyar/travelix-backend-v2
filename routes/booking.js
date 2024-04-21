@@ -24,8 +24,9 @@ router.get("/", async (req, res) => {
 router.post("/mobile", async (req, res) => {
   try {
     const { paymentMethod } = req.body;
+    
     const booking = new Booking(req.body);
-
+console.log("booooooking",booking);
     // Create a Payment Intent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: booking.bookedItem.price,
