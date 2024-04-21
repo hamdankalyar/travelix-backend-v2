@@ -41,19 +41,19 @@ router.post("/", async (req, res) => {
     if (car) {
       await Vehicle.findByIdAndUpdate(req.body.targetId, {
         $push: { feedbacks: newFeedback._id },
-        $inc: { numberOfReviews: 1 },
+        $inc: { noOfReviews: 1 },
       });
       await updateRating(Vehicle, req.body.targetId);
     } else if (hotel) {
       await Hotel.findByIdAndUpdate(req.body.targetId, {
         $push: { feedbacks: newFeedback._id },
-        $inc: { numberOfReviews: 1 },
+        $inc: { noOfReviews: 1 },
       });
       await updateRating(Hotel, req.body.targetId);
     } else if (tour) {
       await Tour.findByIdAndUpdate(req.body.targetId, {
         $push: { feedbacks: newFeedback._id },
-        $inc: { numberOfReviews: 1 },
+        $inc: { noOfReviews: 1 },
       });
       await updateRating(Tour, req.body.targetId);
 
