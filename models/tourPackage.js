@@ -101,7 +101,7 @@ const validateTour = (tour) => {
     description: Joi.string().min(30).max(1000).required(),
     images: Joi.array().items(Joi.string()).min(1).required(),
     duration: Joi.string().required(),
-    personsAllowed: Joi.number().min(1).required(),
+    personsAllowed: Joi.number().min(0).required(),
     amenities: Joi.array().items(Joi.string()).min(1).required(),
     availableDates: Joi.array().items(
       Joi.object({
