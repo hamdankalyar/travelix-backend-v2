@@ -13,7 +13,10 @@ const bookingSchema = new mongoose.Schema({
       type: Number,
       required: true,
     },
-
+    numberOfPersons: {
+      type: Number,
+      required: true,
+    },
     tourDate: {
       startDate: {
         type: Date,
@@ -24,7 +27,6 @@ const bookingSchema = new mongoose.Schema({
         required: true,
       },
     },
-    numberOfPersons:{type:Number}.
   },
   bookedUserInfo: {
     fullName: String,
@@ -56,7 +58,7 @@ const validateBooking = (booking) => {
     bookedItem: Joi.object({
       item: Joi.objectId().required(),
       price: Joi.number().required(),
-      numberOfPersons: Joi.number().integer().min(1).required(),
+      numberOfPersons: Joi.number().integer().min(1).optional(),
       tourDate: Joi.object({
         startDate: Joi.date().iso().required(),
         finishDate: Joi.date().iso().required(),
