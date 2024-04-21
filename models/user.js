@@ -68,7 +68,7 @@ userSchema.pre("save", async function (next) {
 
 const validateUser = (user) => {
   const schema = {
-    name: Joi.string().min(3).optional(),
+    name: Joi.string().trim().optional(),
     email: Joi.string().email().required().email(),
     phone: Joi.string().min(8).max(11).optional(),
     password: Joi.string().min(8).max(255).required(),
