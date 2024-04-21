@@ -6,10 +6,10 @@ const tourSchema = new mongoose.Schema({
   place: {
     type: String,
     required: false,
-    minlength: 5,
+    minlength: 1,
     maxlength: 277,
   },
-  title: { type: String, required: true, minlength: 3, maxlength: 255 },
+  title: { type: String, required: true, minlength: 1, maxlength: 255 },
   tourOwner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -94,8 +94,8 @@ const Tour = mongoose.model("Tour", tourSchema);
 
 const validateTour = (tour) => {
   const schema = Joi.object({
-    place: Joi.string().min(3).max(277).optional(),
-    title: Joi.string().min(3).max(255).required(),
+    place: Joi.string().min(1).max(277).optional(),
+    title: Joi.string().min(1).max(255).required(),
     tourOwner: Joi.objectId().required(),
     description: Joi.string().required(),
     images: Joi.array().items(Joi.string()).min(1).required(),
