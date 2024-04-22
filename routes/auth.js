@@ -244,6 +244,7 @@ const removeExpiredResetCodes = async () => {
 // Call the function every 3 minutes
 
 router.post("/forget-password", async (req, res) => {
+  console.log("forget password",req.body)
   const { email } = req.body;
   
   try {
