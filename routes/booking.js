@@ -244,4 +244,40 @@ router.get("/owner/:ownerId", async (req, res) => {
   }
 });
 
+router.put("/updateFeedback/:productId", async (req, res) => {
+  const { productId } = req.params;
+
+  try {
+    // Find all bookings with the specified product ID
+    const hotelBookings = await HotelBooking.find({
+      "bookedItem.item": productId,
+    });
+    const vehicleBookings = await VehicleBooking.find({
+      "bookedItem.item": productId,
+    });
+    const tourBookings = await Booking.find({ "bookedItem.item": productId });
+
+    // Combine all bookings into a single array
+    const allBookings = [...hotelBookings, ...vehicleBookings, ...tourBookings];
+
+    // Update feedbackGiven attribute for each booking
+    await Promise.all(
+      allBookings.map(async (booking) => {
+        await booking.updateOne({ feedbackGiven: true });
+      })
+    );
+
+    // Check if any bookings were updated
+    if (allBookings.length === 0) {
+      return res.status(404).send(false);
+    }
+
+    // Return success response
+    res.status(200).send(true);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(false);
+  }
+});
+
 module.exports = router;
