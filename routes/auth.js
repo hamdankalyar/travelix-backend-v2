@@ -245,7 +245,7 @@ const removeExpiredResetCodes = async () => {
 
 router.post("/forget-password", async (req, res) => {
   const { email } = req.body;
-  console.log(email);
+  
   try {
     // Find user by email
     const user = await User.findOne({ email });
