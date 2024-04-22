@@ -37,6 +37,7 @@ const hotelBookingSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+   feedbackGiven: { type: Boolean, default: false },
   bookingAt: { type: Date, default: Date.now },
 });
 
