@@ -372,12 +372,10 @@ router.put("/change-password", async (req, res) => {
       return res.status(400).send("Old password is incorrect");
     }
 
-    // Hash the new password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    
 
     // Update the user's password
-    user.password = hashedPassword;
+    user.password = newPassword;
     await user.save();
 
     res.status(200).send("Password changed successfully");
