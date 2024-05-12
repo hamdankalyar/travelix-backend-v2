@@ -3,11 +3,12 @@ const mongoose = require("mongoose");
 const router = express.Router();
 const { Hotel, ValidateHotel } = require("../models/hotel");
 
-
 // Get all Hotels
 router.get("/", async (req, res) => {
   try {
     const hotels = await Hotel.find();
+    console.log("New Console");
+
     res.status(200).send(hotels);
   } catch (error) {
     res.status(500).send("Internal Server Error");
