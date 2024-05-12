@@ -46,7 +46,6 @@ console.log("booooooking",booking);
     res.status(200).send({ clientSecret: paymentIntent.client_secret });
   } catch (error) {
     console.error("Error while creating payment intent:", error);
-    console.log("Hello World");
     res.status(500).send({ error: error.message });
   }
 });
