@@ -16,6 +16,12 @@ const hotelSchema = new mongoose.Schema({
   },
   price: { type: Number, required: true },
   maxGuestsAllowed: { type: Number },
+  numberOfRooms: {
+    type: Number,
+    required: true,
+    default: 0,
+    min: 0,
+  },
   // roomType: { type: String },
   amenities: { type: Array },
   rating: { type: Number, min: 0, max: 5, default: 0 },
@@ -31,12 +37,10 @@ const hotelSchema = new mongoose.Schema({
   policies: {
     type: Array,
     required: false,
-
   },
   additionalServices: {
     type: Array,
     required: false,
-
   },
   feedbacks: {
     type: [mongoose.Schema.Types.ObjectId],
@@ -54,6 +58,7 @@ const validateHotel = (hotel) => {
     images: Joi.array().items(Joi.string()).min(1).required(),
     price: Joi.number().required(),
     maxGuestsAllowed: Joi.number().optional(),
+    numberOfRooms: Joi.number().required(),
     // roomType: Joi.string().required(),
     amenities: Joi.array().items(Joi.string()).required(),
     rating: Joi.number(),
@@ -62,8 +67,8 @@ const validateHotel = (hotel) => {
     longitude: Joi.number().optional(),
     latitude: Joi.number().optional(),
     feedbacks: Joi.array().optional(),
-     policies: Joi.array().optional(),
-  
+    policies: Joi.array().optional(),
+
     additionalServices: Joi.array().items(Joi.string()).min(1).optional(),
     description: Joi.string().required(), // Added validation for description field
   };
