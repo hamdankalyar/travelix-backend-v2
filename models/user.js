@@ -45,6 +45,10 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  isRegister: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 userSchema.methods.generateAuthToken = function () {

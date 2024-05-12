@@ -13,6 +13,10 @@ const hotelBookingSchema = new mongoose.Schema({
       type: Number,
       required: true,
     },
+    numberOfRooms: {
+      type: Number,
+      required: true,
+    },
     bookingDate: {
       startDate: {
         type: Date,
@@ -37,7 +41,7 @@ const hotelBookingSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-   feedbackGiven: { type: Boolean, default: false },
+  feedbackGiven: { type: Boolean, default: false },
   bookingAt: { type: Date, default: Date.now },
 });
 
@@ -47,6 +51,7 @@ const validateBooking = (booking) => {
     bookedItem: Joi.object({
       item: Joi.objectId().required(),
       price: Joi.number().required(),
+      numberOfRooms: Joi.number().required(),
       bookingDate: Joi.object({
         startDate: Joi.date().iso().required(),
         finishDate: Joi.date().iso().required(),

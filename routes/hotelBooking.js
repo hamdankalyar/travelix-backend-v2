@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { HotelBooking, ValidateBooking } = require("../models/hotelbooking");
 const mongoose = require("mongoose");
+const { Hotel } = require("../models/hotel");
 const authHandler = require("../middleware/auth");
 const Stripe = require("stripe");
 const stripe = new Stripe(
@@ -138,12 +139,48 @@ router.post("/", async (req, res) => {
     });
 
     booking.isStatus = true;
+    await removeRooms(
+      booking.bookedItem.item,
+      booking.bookedItem.numberOfRooms
+    );
     await booking.save();
     res.status(200).send(booking);
   } catch (error) {
     res.status(500).send(error.message);
   }
 });
+
+const removeRooms = async (id, qty) => {
+  try {
+    console.log("Removing rooms:", id, "Quantity:", qty);
+    const hotel = await Hotel.findById(id);
+
+    if (!hotel) {
+      console.log("Hotel not found with ID:", id);
+      return;
+    }
+
+    console.log(
+      "Existing number of persons allowed before update:",
+      hotel.numberOfRooms
+    );
+
+    // Subtract the booked quantity from the total persons allowed
+    hotel.numberOfRooms -= qty;
+
+    // Save the updated tour document
+    await hotel.save();
+
+    console.log(
+      "Successfully removed",
+      qty,
+      "rooms. Updated number of rooms:",
+      hotel.numberOfRooms
+    );
+  } catch (error) {
+    console.error("Error removing rooms:", error.message);
+  }
+};
 
 // PUT (update) a hotel booking
 router.put("/:id", async (req, res) => {
