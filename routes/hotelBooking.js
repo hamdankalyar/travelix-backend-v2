@@ -115,72 +115,110 @@ router.get("/:id", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
-// POST a new hotel booking
 router.post("/", async (req, res) => {
-  //   const { error } = ValidateBooking(req.body);
-  //   if (error) {
-  //     return res.status(400).send(error.details[0].message);
-  //   }
   try {
-    // const stripe = new Stripe(
-    //   "sk_test_51MpYaDSGTswR1vciQcDNb47pImQECcrTwmD7kFGaiGSUV67WNHfz7poKR7OEJCV0XuNCJoCwSDSiuAWGJMoGazeV00yHqaX7VU"
-    // );
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
     const { paymentMethod } = req.body;
     const booking = new HotelBooking(req.body);
-    await stripe.paymentIntents.create({
+
+    const hotel = await Hotel.findById(booking.bookedItem.item).session(session);
+    if (!hotel) {
+      throw new Error("Hotel not found");
+    }
+
+    if (hotel.numberOfRooms < booking.bookedItem.numberOfRooms) {
+      throw new Error("Not enough rooms available");
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create({
       payment_method: paymentMethod.id,
       currency: "PKR",
       amount: 100 * booking.bookedItem.price,
       confirm: true,
       description: `${booking.bookedUserInfo.fullName} booked this Hotel`,
-      return_url: "http://localhost:5173/", // Replace this with your actual return URL
+      return_url: "http://localhost:5173/",
     });
 
     booking.isStatus = true;
-    await removeRooms(
-      booking.bookedItem.item,
-      booking.bookedItem.numberOfRooms
-    );
-    await booking.save();
+    hotel.numberOfRooms -= booking.bookedItem.numberOfRooms;
+    await hotel.save({ session });
+    await booking.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
     res.status(200).send(booking);
   } catch (error) {
     res.status(500).send(error.message);
   }
 });
+// // POST a new hotel booking
+// router.post("/", async (req, res) => {
+//   //   const { error } = ValidateBooking(req.body);
+//   //   if (error) {
+//   //     return res.status(400).send(error.details[0].message);
+//   //   }
+//   try {
+//     // const stripe = new Stripe(
+//     //   "sk_test_51MpYaDSGTswR1vciQcDNb47pImQECcrTwmD7kFGaiGSUV67WNHfz7poKR7OEJCV0XuNCJoCwSDSiuAWGJMoGazeV00yHqaX7VU"
+//     // );
 
-const removeRooms = async (id, qty) => {
-  try {
-    console.log("Removing rooms:", id, "Quantity:", qty);
-    const hotel = await Hotel.findById(id);
+//     const { paymentMethod } = req.body;
+//     const booking = new HotelBooking(req.body);
+//     await stripe.paymentIntents.create({
+//       payment_method: paymentMethod.id,
+//       currency: "PKR",
+//       amount: 100 * booking.bookedItem.price,
+//       confirm: true,
+//       description: `${booking.bookedUserInfo.fullName} booked this Hotel`,
+//       return_url: "http://localhost:5173/", // Replace this with your actual return URL
+//     });
 
-    if (!hotel) {
-      console.log("Hotel not found with ID:", id);
-      return;
-    }
+//     booking.isStatus = true;
+//     await removeRooms(
+//       booking.bookedItem.item,
+//       booking.bookedItem.numberOfRooms
+//     );
+//     await booking.save();
+//     res.status(200).send(booking);
+//   } catch (error) {
+//     res.status(500).send(error.message);
+//   }
+// });
 
-    console.log(
-      "Existing number of persons allowed before update:",
-      hotel.numberOfRooms
-    );
+// const removeRooms = async (id, qty) => {
+//   try {
+//     console.log("Removing rooms:", id, "Quantity:", qty);
+//     const hotel = await Hotel.findById(id);
 
-    // Subtract the booked quantity from the total persons allowed
-    hotel.numberOfRooms -= qty;
+//     if (!hotel) {
+//       console.log("Hotel not found with ID:", id);
+//       return;
+//     }
 
-    // Save the updated tour document
-    await hotel.save();
+//     console.log(
+//       "Existing number of persons allowed before update:",
+//       hotel.numberOfRooms
+//     );
 
-    console.log(
-      "Successfully removed",
-      qty,
-      "rooms. Updated number of rooms:",
-      hotel.numberOfRooms
-    );
-  } catch (error) {
-    console.error("Error removing rooms:", error.message);
-  }
-};
+//     // Subtract the booked quantity from the total persons allowed
+//     hotel.numberOfRooms -= qty;
+
+//     // Save the updated tour document
+//     await hotel.save();
+
+//     console.log(
+//       "Successfully removed",
+//       qty,
+//       "rooms. Updated number of rooms:",
+//       hotel.numberOfRooms
+//     );
+//   } catch (error) {
+//     console.error("Error removing rooms:", error.message);
+//   }
+// };
 
 // PUT (update) a hotel booking
 router.put("/:id", async (req, res) => {
