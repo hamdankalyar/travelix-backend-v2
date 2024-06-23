@@ -342,7 +342,7 @@ router.put("/updateRoleForUser", async (req, res) => {
     }
     // Check if the requester is a club owner and update the role
     if (user.role === "user") {
-      user.role = "clubOwner";
+      user.role = "tourOwner";
       user.isTourOwner = false;
       await user.save();
       return res.status(200).send(user);
