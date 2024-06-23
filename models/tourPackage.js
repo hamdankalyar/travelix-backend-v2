@@ -31,7 +31,7 @@ const tourSchema = new mongoose.Schema({
     },
   },
   duration: {
-    type: String,
+    type: Number,
     required: true,
   },
   personsAllowed: {
@@ -99,7 +99,7 @@ const validateTour = (tour) => {
     tourOwner: Joi.objectId().required(),
     description: Joi.string().required(),
     images: Joi.array().items(Joi.string()).min(1).required(),
-    duration: Joi.string().required(),
+    duration: Joi.number().required(),
     personsAllowed: Joi.number().min(0).required(),
     amenities: Joi.array().items(Joi.string()).min(1).required(),
     availableDates: Joi.array().items(
