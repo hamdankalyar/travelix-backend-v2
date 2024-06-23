@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     required: true,
-    enum: ["superAdmin", "user", "carOwner", "hotelOwner", "clubOwner"],
+    enum: ["superAdmin", "user", "carOwner", "hotelOwner", "tourOwner"],
     default: "user",
   },
   accountName: {
@@ -79,7 +79,7 @@ const validateUser = (user) => {
     image: Joi.string().optional(),
     role: Joi.string()
       .required()
-      .valid("superAdmin", "user", "carOwner", "hotelOwner", "clubOwner"),
+      .valid("superAdmin", "user", "carOwner", "hotelOwner", "tourOwner"),
     accountName: Joi.string().optional(),
     idCardImage: Joi.string().optional(),
     address: Joi.string().optional(),
