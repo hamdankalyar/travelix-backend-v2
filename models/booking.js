@@ -49,6 +49,7 @@ const bookingSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+    isDelivered: { type: Boolean, default: false },
   feedbackGiven: { type: Boolean, default: false },
   bookingAt: { type: Date, default: Date.now },
   
