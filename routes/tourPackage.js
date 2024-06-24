@@ -36,7 +36,7 @@ router.get("/:id", async (req, res) => {
       .populate({
         path: "feedbacks",
         populate: [
-          { path: "user", select: "name" },
+          { path: "user", select: "name image" },
           {
             path: "response",
             populate: { path: "owner", select: "name comment" },
