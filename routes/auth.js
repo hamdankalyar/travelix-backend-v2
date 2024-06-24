@@ -79,6 +79,7 @@ router.post("/register", async (req, res) => {
       password: req.body.password,
       image: imageUrls[0], // First URL or empty string
       role: req.body.role,
+      
       accountName: req.body.accountName,
       idCardImage: imageUrls[1], // Second URL or empty string
       address: req.body.address,
@@ -92,7 +93,7 @@ router.post("/register", async (req, res) => {
       .header("x-auth-token", token)
       .status(200)
       .send(_.pick(user, [
-        "_id", "name", "email", "image", "role", "phone", "accountName", "idCardImage", "address", "accountNumber", "bankName"
+        "_id", "name", "email", "image", "role", "phone", "accountName", "idCardImage","isRegister", "address", "accountNumber", "bankName"
       ]));
   } catch (ex) {
     console.log(ex);
@@ -128,7 +129,7 @@ router.post("/login", async (req, res) => {
         role: user.role,
         image: user.image,
         token: token,
-        isRegister: user.isRegister,
+            isRegister: user.isRegister,
         phone: user.phone ? user.phone : undefined,
         accountName: user.accountName ? user.accountName : undefined,
         idCardImage: user.idCardImage ? user.idCardImage : undefined,
