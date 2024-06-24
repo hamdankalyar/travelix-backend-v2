@@ -24,7 +24,12 @@ router.post("/mobile", async (req, res) => {
 
     // Save the booking into the database
     booking.isStatus = true;
+        await removeRooms(
+      booking.bookedItem.item,
+      booking.bookedItem.numberOfRooms
+    );
     await booking.save();
+  
 
     // Send the clientSecret back to the client
     res.status(200).send({ clientSecret: paymentIntent.client_secret });
