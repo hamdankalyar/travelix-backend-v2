@@ -128,6 +128,7 @@ router.post("/login", async (req, res) => {
         role: user.role,
         image: user.image,
         token: token,
+        isRegister: user.isRegister,
         phone: user.phone ? user.phone : undefined,
         accountName: user.accountName ? user.accountName : undefined,
         idCardImage: user.idCardImage ? user.idCardImage : undefined,
