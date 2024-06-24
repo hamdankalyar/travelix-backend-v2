@@ -386,4 +386,54 @@ router.put("/change-password", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
+
+router.post("/send-email", async (req, res) => {
+  const { email, subject, message } = req.body;
+
+  if (!email || !subject || !message) {
+    return res
+      .status(400)
+      .send({ error: "Email, subject, and message are required" });
+  }
+
+  try {
+    await sendCustomEmail(email, subject, message);
+    res.status(200).send({ message: "Email sent successfully" });
+  } catch (error) {
+    console.error("Error sending email:", error);
+    res.status(500).send({ error: "Internal Server Error" });
+  }
+});
+async function sendCustomEmail(email, subject, message) {
+  console.log("Receiver Email is: " + email);
+
+  const password = "cmno mkvn sdjp pvlj";
+  const port = 587;
+
+  try {
+    let transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: port,
+      secure: false, // false for TLS - as a boolean not string - if true, use port 465
+      auth: {
+        user: "travlix567@gmail.com",
+        pass: password,
+      },
+    });
+
+    // Define email options
+    let mailOptions = {
+      from: "travlix567@gmail.com",
+      to: email, // Receiver address
+      subject: subject, // Email subject
+      text: message, // Email body
+    };
+
+    // Send email
+    let info = await transporter.sendMail(mailOptions);
+    console.log("Email sent: " + info.response);
+  } catch (error) {
+    console.error("Error sending email:", error);
+  }
+}
 module.exports = router;
